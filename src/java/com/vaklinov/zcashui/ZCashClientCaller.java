@@ -486,7 +486,7 @@ public class ZCashClientCaller
 
 
 	// Returns OPID
-	public synchronized String sendCash(String from, String to, String amount, String memo, String transactionFee)
+	public synchronized String sendCash(String from, String to, String amount, String memo, String transactionFee, boolean returnUnspentAmountToSource)
 		throws WalletCallException, IOException, InterruptedException
 	{
 		StringBuilder hexMemo = new StringBuilder();

@@ -53,6 +53,7 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -83,6 +84,7 @@ public class SendCashPanel
 	private BackupTracker             backupTracker;
 	
 	private JComboBox  balanceAddressCombo     = null;
+	private JCheckBox  returnUnspentAmountOnSourceAddressCheckBox = null;
 	private JPanel     comboBoxParentPanel     = null;
 	private String[][] lastAddressBalanceData  = null;
 	private String[]   comboBoxItems           = null;
@@ -134,8 +136,10 @@ public class SendCashPanel
 		sendCashPanel.add(tempPanel);
 
 		balanceAddressCombo = new JComboBox<>(new String[] { "" });
+		returnUnspentAmountOnSourceAddressCheckBox = new JCheckBox("Remain unspent amount on source address");
 		comboBoxParentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		comboBoxParentPanel.add(balanceAddressCombo);
+		comboBoxParentPanel.add(returnUnspentAmountOnSourceAddressCheckBox);
 		sendCashPanel.add(comboBoxParentPanel);
 		
 		JLabel dividerLabel = new JLabel("   ");
@@ -394,6 +398,7 @@ public class SendCashPanel
 		final String memo = this.destinationMemoField.getText();
 		final String amount = this.destinationAmountField.getText();
 		final String fee = this.transactionFeeField.getText();
+		final boolean returnUnspentAmountToSource = this.returnUnspentAmountOnSourceAddressCheckBox.isSelected();
 
 		// Verify general correctness.
 		String errorMessage = null;
@@ -497,7 +502,13 @@ public class SendCashPanel
 		}
 		
 		// Call the wallet send method
-		operationStatusID = this.clientCaller.sendCash(sourceAddress, destinationAddress, amount, memo, fee);
+		operationStatusID = this.clientCaller.sendCash(
+				sourceAddress, 
+				destinationAddress, 
+				amount, 
+				memo, 
+				fee,
+				returnUnspentAmountToSource);
 				
 		// Make sure the keypool has spare addresses
 		if ((this.backupTracker.getNumTransactionsSinceLastBackup() % 5) == 0)
@@ -631,8 +642,10 @@ public class SendCashPanel
 		int selectedIndex = balanceAddressCombo.getSelectedIndex();
 		boolean isEnabled = balanceAddressCombo.isEnabled();
 		this.comboBoxParentPanel.remove(balanceAddressCombo);
+		this.comboBoxParentPanel.remove(returnUnspentAmountOnSourceAddressCheckBox);
 		balanceAddressCombo = new JComboBox<>(comboBoxItems);
 		comboBoxParentPanel.add(balanceAddressCombo);
+		comboBoxParentPanel.add(returnUnspentAmountOnSourceAddressCheckBox);
 		if ((balanceAddressCombo.getItemCount() > 0) &&
 			(selectedIndex >= 0) &&
 			(balanceAddressCombo.getItemCount() > selectedIndex))
